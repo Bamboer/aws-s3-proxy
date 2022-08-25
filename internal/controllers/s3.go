@@ -66,19 +66,20 @@ func AwsS3(w http.ResponseWriter, r *http.Request) {
 
 	// Get a S3 object
 	obj, err := client.S3get(c.S3Bucket, c.S3KeyPrefix+path, rangeHeader)
-	defer obj.Body.Close()
-	if err == nil {
-		setHeadersFromAwsResponse(w, obj, c.HTTPCacheControl, c.HTTPExpires)
-		if err := client.S3Download(w, c.S3Bucket, c.S3KeyPrefix+path, rangeHeader); err != nil {
-			code, message := toHTTPError(err)
-			http.Error(w, message, code)
-			return
-		}
-	} else {
+
+	if err != nil {
 		code, message := toHTTPError(err)
 		http.Error(w, message, code)
 		return
 	}
+	defer obj.Body.Close()
+	setHeadersFromAwsResponse(w, obj, c.HTTPCacheControl, c.HTTPExpires)
+	if err := client.S3Download(w, c.S3Bucket, c.S3KeyPrefix+path, rangeHeader); err != nil {
+		code, message := toHTTPError(err)
+		http.Error(w, message, code)
+		return
+	}
+	
 }
 
 func replacePathWithSymlink(client service.AWS, bucket, symlinkPath string) (*string, error) {
