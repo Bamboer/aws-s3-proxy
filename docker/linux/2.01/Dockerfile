@@ -2,12 +2,12 @@
 # docker run -d -p 8080:80 -e AWS_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_S3_BUCKET pottava/s3-proxy
 
 FROM golang:1.13.7-alpine3.11 AS builder
-RUN apk --no-cache add gcc musl-dev git
+RUN apk --no-cache add gcc musl-dev git 
 RUN git config --global http.version HTTP/1.1
 RUN go env -w GOPROXY="https://goproxy.cn,direct" 
 RUN git clone https://github.com/Bamboer/aws-s3-proxy.git
 WORKDIR aws-s3-proxy
-ENV APP_VERSION=v2.0.4
+ENV APP_VERSION=v2.0.5
 RUN git checkout "${APP_VERSION}" > /dev/null 2>&1
 RUN go mod download
 RUN go mod verify
